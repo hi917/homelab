@@ -3,15 +3,14 @@
   roles:
     - apt
 
-    - wheel
-
     - role: user
       user: '{{ username }}'
       password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
-      group: 'root'
+      group: sudo
 
     - role: ssh
       user: '{{ username }}'
+      password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
       key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLc93m9TW+ls3Uv/48f5C3YfYNyX5dB18wcSrLaod2Q ansible'
 
     - role: bashrc

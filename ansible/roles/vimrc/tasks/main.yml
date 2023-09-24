@@ -5,3 +5,8 @@
     dest: '{{ dest | default("/home/" + username) }}'
     owner: '{{ username }}'
     mode: '0644'
+
+- name: Run VimPlug PlugInstall
+  tags: vimrc, vimplug
+  ansible.builtin.command:
+    cmd: vim +'PlugInstall --sync' +qa
