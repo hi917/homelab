@@ -1,0 +1,36 @@
+- name: Bootstrap server or VM
+  hosts: "*"
+  roles:
+    - apt
+
+    - wheel
+
+    - role: user
+      user: '{{ username }}'
+      password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
+      group: 'root'
+
+    - role: ssh
+      user: '{{ username }}'
+      key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLc93m9TW+ls3Uv/48f5C3YfYNyX5dB18wcSrLaod2Q ansible'
+
+    - role: bashrc
+      user: '{{ username }}'
+
+    - role: bashrc
+      user: root
+      dest: /root
+
+    - role: vimrc
+      user: '{{ username }}'
+
+    - role: vimrc
+      user: root
+      dest: /root
+
+    - role: wol
+      interface: eno1
+      value: g
+
+  vars:
+    username: 'peter'

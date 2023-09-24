@@ -1,0 +1,19 @@
+- name: Update packages (apt-get upgrade)
+  tags: apt
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Upgrade packages (apt-get dist-upgrade)
+  tags: apt
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Remove useless packages from the cache
+  tags: apt
+  ansible.builtin.apt:
+    autoclean: true
+
+- name: Remove dependencies that are no longer required
+  tags: apt
+  ansible.builtin.apt:
+    autoremove: true

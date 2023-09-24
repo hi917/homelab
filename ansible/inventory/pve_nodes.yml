@@ -1,0 +1,5 @@
+pve_nodes:
+  hosts:
+    pve01:
+    pve02:
+    pve03:

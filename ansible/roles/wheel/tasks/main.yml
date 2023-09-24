@@ -1,0 +1,13 @@
+- name: Create 'wheel' group
+  tags: wheel
+  ansible.builtin.group:
+    name: wheel
+    state: present
+
+- name: Add 'wheel' to /etc/sudoers
+  tags: wheel
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'

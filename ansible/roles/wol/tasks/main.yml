@@ -1,0 +1,38 @@
+- name: Install ethtool
+  tags: ethtool
+  ansible.builtin.apt:
+    name: ethtool
+    state: present
+
+- name: Check interface
+  tags: ethtool, wol
+  ansible.builtin.command:
+    cmd: ethtool {{ interface }} | grep 'Wake-on' | tail -1 | awk '{print substr($0,length,1)}'
+  register: wol_enabled
+
+- name: Current interface
+  tags: ethtool, wol
+  ansible.builtin.debug:
+    msg: 'Current status is: {{ wol_enabled.stdout }}'
+
+- name: Set interface
+  tags: ethtool, wol
+  ansible.builtin.command:
+    cmd: ethtool -s {{ interface }} wol {{ value }}
+  when: 'value != wol_enabled.stdout'
+  changed_when: 'value != wol_enabled.stdout'
+
+- name: Template out wol.service
+  tags: wol.service
+  ansible.builtin.template:
+    src: wol.service.j2
+    dest: /etc/systemd/system/wol.service
+    owner: root
+    mode: '0644'
+
+- name: Start wol.service
+  tags: wol.service
+  ansible.builtin.systemd:
+    name: wol.service
+    enabled: true
+    state: started
