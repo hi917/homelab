@@ -7,12 +7,12 @@
 
     - role: create_user
       user: '{{ username }}'
-      password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
+      password: '{{ pw }}'
       group: sudo
 
     - role: setup_ssh_key
       user: '{{ username }}'
-      password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
+      password: '{{ pw }}'
       key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLc93m9TW+ls3Uv/48f5C3YfYNyX5dB18wcSrLaod2Q ansible'
 
     - role: setup_bashrc
@@ -35,3 +35,4 @@
 
   vars:
     username: 'peter'
+    pw: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'

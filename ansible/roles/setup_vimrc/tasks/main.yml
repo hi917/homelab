@@ -10,3 +10,4 @@
   tags: vimrc, vimplug
   ansible.builtin.command:
     cmd: vim +'PlugInstall --sync' +qa
+  changed_when: false

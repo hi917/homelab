@@ -5,18 +5,19 @@
     state: present
 
 - name: Check interface
-  tags: ethtool, wol
-  ansible.builtin.command:
+  tags: wol
+  ansible.builtin.shell:
     cmd: ethtool {{ interface }} | grep 'Wake-on' | tail -1 | awk '{print substr($0,length,1)}'
   register: wol_enabled
+  changed_when: false
 
 - name: Current interface
-  tags: ethtool, wol
+  tags: wol
   ansible.builtin.debug:
     msg: 'Current status is: {{ wol_enabled.stdout }}'
 
 - name: Set interface
-  tags: ethtool, wol
+  tags: wol
   ansible.builtin.command:
     cmd: ethtool -s {{ interface }} wol {{ value }}
   when: 'value != wol_enabled.stdout'
@@ -36,3 +37,4 @@
     name: wol.service
     enabled: true
     state: started
+  changed_when: false
