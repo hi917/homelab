@@ -1,6 +1,5 @@
 - name: Add SSH key for user
   tags: ssh
-  become_user: '{{ username }}'
   ansible.posix.authorized_key:
-    user: '{{ username }}'
-    key: '{{ key }}'
+    user: '{{ ssk_user }}'
+    key: '{{ ssk_key }}'

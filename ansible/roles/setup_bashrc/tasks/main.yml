@@ -1,7 +1,8 @@
 - name: Setup .bashrc
   tags: bashrc
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/hi917/dotfiles/master/.bashrc
-    dest: '{{ dest | default("/home/" + username) }}'
-    owner: '{{ username }}'
+    url: '{{ bashrc_url }}'
+    dest: '{{ sb_dest | default("/home/" + sb_user ) }}/.bashrc'
+    owner: '{{ sb_user }}'
     mode: '0644'
+    force: true

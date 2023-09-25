@@ -1,13 +1,23 @@
-- name: Setup .vimrc
+- name: Ensure VIM and cURL
+  tags: vim, curl
+  ansible.builtin.apt:
+    name: 
+      - vim
+      - curl
+    state: present
+
+- name: Download .vimrc
   tags: vimrc
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/hi917/dotfiles/master/.vimrc
-    dest: '{{ dest | default("/home/" + username) }}'
-    owner: '{{ username }}'
+    url: '{{ vimrc_url }}'
+    dest: '{{ sv_dest | default("/home/" + sv_user) }}/.vimrc'
+    owner: '{{ sv_user }}'
     mode: '0644'
+    force: true
 
-- name: Run VimPlug PlugInstall
-  tags: vimrc, vimplug
+- name: Run VIM Plug PlugInstall
+  tags: vimrc, vimplug, last
   ansible.builtin.command:
-    cmd: vim +'PlugInstall --sync' +qa
+    cmd: "vim -E +PlugInstall +qa"
+  failed_when: 1 == 0
   changed_when: false

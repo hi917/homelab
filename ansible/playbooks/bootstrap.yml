@@ -1,38 +1,62 @@
-- name: Bootstrap server or VM
+- name: Preliminary server/VM setup
   hosts: "*"
+  become: true
+  
   roles:
     - apt
 
-    - install_git
-
-    - role: create_user
-      user: '{{ username }}'
-      password: '{{ pw }}'
-      group: sudo
-
-    - role: setup_ssh_key
-      user: '{{ username }}'
-      password: '{{ pw }}'
-      key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLc93m9TW+ls3Uv/48f5C3YfYNyX5dB18wcSrLaod2Q ansible'
-
-    - role: setup_bashrc
-      user: '{{ username }}'
-
-    - role: setup_bashrc
-      user: root
-      dest: /root
-
-    - role: setup_vimrc
-      user: '{{ username }}'
-
-    - role: setup_vimrc
-      user: root
-      dest: /root
+    # - install_git
 
     - role: setup_wol
-      interface: eno1
-      value: g
+      sw_interface: eno1
+      sw_value: g
+  
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - ssh
+        state: present
+
+
+- name: Create users and setup SSH keys
+  hosts: "*"
+  become: true
 
   vars:
-    username: 'peter'
-    pw: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
+    name: 'peter'
+    password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
+    public_key: "{{ lookup('file', '/home/peter/.ssh/ansible.pub') }}"
+    
+  roles:
+    - role: create_user
+      cu_name: 'ansible'
+      cu_group: sudo
+
+    - role: setup_ssh_key
+      ssk_user: 'ansible'
+      ssk_key: '{{ public_key }}'
+
+    - role: create_user
+      cu_name: '{{ name }}'
+      cu_password: '{{ password }}'
+      cu_group: sudo
+
+    - role: setup_ssh_key
+      ssk_user: '{{ name }}'
+      ssk_password: '{{ password }}'
+      ssk_key: '{{ public_key }}'
+
+- name: Setup user
+  hosts: "*"
+
+  vars:
+    name: 'peter'
+
+  remote_user: '{{ name }}'
+  roles:
+    - role: setup_bashrc
+      sb_user: '{{ name }}'
+
+    - role: setup_vimrc
+      sv_user: '{{ name }}'
