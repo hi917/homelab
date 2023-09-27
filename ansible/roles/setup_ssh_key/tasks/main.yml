@@ -1,5 +1,0 @@
-- name: Add SSH key for user
-  tags: ssh
-  ansible.posix.authorized_key:
-    user: '{{ ssk_user }}'
-    key: '{{ ssk_key }}'

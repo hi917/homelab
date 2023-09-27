@@ -1,0 +1,5 @@
+create_terraform_user_url: https://raw.githubusercontent.com/hi917/homelab/master/terraform/create_terraform_user
+script_name: create_terraform_user
+
+remote_terraform_vars: /root/terraform.tfvars
+local_terraform_vars: /home/peter/homelab/terraform/terraform.tfvars

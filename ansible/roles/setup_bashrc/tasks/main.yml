@@ -1,8 +1,9 @@
+---
 - name: Setup .bashrc
   tags: bashrc
   ansible.builtin.get_url:
-    url: '{{ bashrc_url }}'
-    dest: '{{ sb_dest | default("/home/" + sb_user ) }}/.bashrc'
-    owner: '{{ sb_user }}'
+    url: '{{ bashrc_url | mandatory }}'
+    dest: "{{ sb_dest | default(lookup('env', 'HOME') + '/.bashrc') }}"
+    owner: '{{ sb_user | mandatory }}'
     mode: '0644'
     force: true

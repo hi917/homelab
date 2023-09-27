@@ -1,0 +1,39 @@
+---
+- name: Process 'wheel' group
+  when: '"wheel" in su_groups'
+  become: true
+  tags: wheel
+
+  block:
+  - name: Ensure wheel
+    ansible.builtin.group:
+      name: wheel
+      state: present
+
+  - name: Allow 'wheel' to have passwordless sudo
+    ansible.builtin.lineinfile:
+      dest: /etc/sudoers
+      regexp: '^%wheel'
+      line: '%wheel ALL=(ALL) NOPASSWD:ALL'
+      state: present
+      validate: '/usr/sbin/visudo -cf %s'
+
+- name: Create user
+  become: true
+  tags: user
+  ansible.builtin.user:
+    name: '{{ su_name | mandatory }}'
+    password: '{{ su_password | default(default_user_password) }}'
+    state: present
+    shell: /bin/bash
+    groups: '{{ su_group | default("") }}'
+    append: true
+    home: '/home/{{ su_name | mandatory }}'
+    create_home: true
+
+- name: Add SSH key for user
+  when: su_key is defined
+  tags: ssh_key
+  ansible.posix.authorized_key:
+    user: '{{ su_name | mandatory }}'
+    key: '{{ su_key }}'

@@ -1,60 +1,28 @@
-- name: Preliminary server/VM setup
-  hosts: "*"
-  become: true
-  
-  roles:
-    - apt
-
-    # - install_git
-
-    - role: setup_wol
-      sw_interface: eno1
-      sw_value: g
-  
-  tasks:
-    - name: Install packages
-      ansible.builtin.apt:
-        name:
-          - ssh
-        state: present
-
-
-- name: Create users and setup SSH keys
-  hosts: "*"
+---
+- name: Bootstrap server or VM
+  hosts: all
   become: true
 
   vars:
-    name: 'peter'
-    password: '$1$SomeSalt$nF20uIvC3qK2gVo2IyYNb/'
-    public_key: "{{ lookup('file', '/home/peter/.ssh/ansible.pub') }}"
-    
+    name: peter
+    public_key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/ansible.pub') }}"
+
   roles:
-    - role: create_user
-      cu_name: 'ansible'
-      cu_group: sudo
+    - role: apt
+      packages: ['sudo', 'git', 'curl', 'vim', 'ethtool']
 
-    - role: setup_ssh_key
-      ssk_user: 'ansible'
-      ssk_key: '{{ public_key }}'
+    - setup_wol
 
-    - role: create_user
-      cu_name: '{{ name }}'
-      cu_password: '{{ password }}'
-      cu_group: sudo
+    - role: setup_user
+      su_name: deploy
+      su_groups: wheel
+      su_key: '{{ public_key }}'
 
-    - role: setup_ssh_key
-      ssk_user: '{{ name }}'
-      ssk_password: '{{ password }}'
-      ssk_key: '{{ public_key }}'
+    - role: setup_user
+      su_name: '{{ name }}'
+      su_groups: wheel
+      su_key: '{{ public_key }}'
 
-- name: Setup user
-  hosts: "*"
-
-  vars:
-    name: 'peter'
-
-  remote_user: '{{ name }}'
-  roles:
     - role: setup_bashrc
       sb_user: '{{ name }}'
 

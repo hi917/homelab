@@ -1,2 +1,6 @@
+# ANSIBLE
 **/ansible_vault_password
 **/test*
+
+# TERRAFORM
+**/terraform.tfvars

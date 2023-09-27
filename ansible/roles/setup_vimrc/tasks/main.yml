@@ -1,23 +1,19 @@
-- name: Ensure VIM and cURL
-  tags: vim, curl
-  ansible.builtin.apt:
-    name: 
-      - vim
-      - curl
-    state: present
-
-- name: Download .vimrc
+---
+- name: Setup VIM with .vimrc
   tags: vimrc
-  ansible.builtin.get_url:
-    url: '{{ vimrc_url }}'
-    dest: '{{ sv_dest | default("/home/" + sv_user) }}/.vimrc'
-    owner: '{{ sv_user }}'
-    mode: '0644'
-    force: true
 
-- name: Run VIM Plug PlugInstall
-  tags: vimrc, vimplug, last
-  ansible.builtin.command:
-    cmd: "vim -E +PlugInstall +qa"
-  failed_when: 1 == 0
-  changed_when: false
+  block:
+  - name: Download .vimrc
+    ansible.builtin.get_url:
+      url: '{{ vimrc_url | mandatory }}'
+      dest: "{{ sv_dest | default(lookup('env', 'HOME') + '/.vimrc') }}"
+      owner: '{{ sv_user | mandatory }}'
+      mode: '0644'
+      force: true
+
+  - name: Run VIM Plug PlugInstall
+    failed_when: 1 == 0
+    changed_when: false
+    tags: vimplug
+    ansible.builtin.command:
+      cmd: "vim -E +PlugInstall +qa"

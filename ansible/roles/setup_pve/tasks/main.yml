@@ -1,0 +1,21 @@
+- name: Setup terraform on PVE
+  tags: terraform
+
+  block:
+  - name: Get script to create terraform user and role
+    ansible.builtin.get_url:
+      url: '{{ create_terraform_user_url }}'
+      dest: /root
+      owner: '{{ ansible_user }}'
+      mode: '0744'
+      force: true
+
+  - name: Create terraform user and role
+    ansible.builtin.command:
+      cmd: "/bin/bash {{ '/root/' + script_name }}"
+
+  - name: Fetch terraform vars file
+    ansible.builtin.fetch:
+      src: '{{ remote_terraform_vars }}'
+      dest: "{{ local_terraform_vars }}"
+      flat: true

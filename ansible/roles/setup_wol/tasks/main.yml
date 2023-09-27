@@ -1,34 +1,28 @@
-- name: Setup WOL
+---
+- name: Setup WOL on metal
   when: "'pve_nodes' in group_names"
+  become: true
+  tags: wol
 
   block:
-  - name: Install ethtool
-    tags: ethtool
-    ansible.builtin.apt:
-      name: ethtool
-      state: present
-
   - name: Check interface
-    tags: wol
-    ansible.builtin.shell:
-      cmd: ethtool {{ sw_interface }} | grep 'Wake-on' | tail -1 | awk '{print substr($0,length,1)}'
     register: wol_enabled
     changed_when: false
+    ansible.builtin.shell:
+      cmd: /usr/sbin/ethtool {{ interface }} | grep 'Wake-on' | tail -1 | awk '{print substr($0,length,1)}'
 
   - name: Current interface
-    tags: wol
     ansible.builtin.debug:
-      msg: 'Current status is: {{ wol_enabled.stdout }}'
+      msg: 'Current status is: {{ wol_enabled["stdout"] }}'
 
   - name: Set interface
-    tags: wol
+    when: wol_value != wol_enabled['stdout']
+    changed_when: wol_value != wol_enabled['stdout']
     ansible.builtin.command:
-      cmd: ethtool -s {{ sw_interface }} wol {{ sw_value }}
-    when: 'value != wol_enabled.stdout'
-    changed_when: 'value != wol_enabled.stdout'
+      cmd: /usr/sbin/ethtool -s {{ interface }} wol {{ wol_value }}
 
   - name: Template out wol.service
-    tags: wol, wol.service
+    tags: wol.service
     ansible.builtin.template:
       src: wol.service.j2
       dest: /etc/systemd/system/wol.service
@@ -36,9 +30,9 @@
       mode: '0644'
 
   - name: Start wol.service
-    tags: wol, wol.service
+    changed_when: false
+    tags: wol.service
     ansible.builtin.systemd:
       name: wol.service
       enabled: true
       state: started
-    changed_when: false

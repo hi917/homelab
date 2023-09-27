@@ -1,0 +1,8 @@
+---
+- name: Bootstrap PVE node
+  hosts: all
+
+  roles:
+    - apt
+
+    - setup_pve

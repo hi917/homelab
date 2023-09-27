@@ -1,0 +1,16 @@
+#!/bin/env bash
+# Create terraform role and user
+
+# Create PVE role for terraform with required priviledges
+pveum role add terraform-role -privs "VM.Allocate VM.Clone VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Monitor VM.Audit VM.PowerMgmt Datastore.AllocateSpace Datastore.Audit"
+
+# Create terraform user and get authentication token
+temp_log=pveum_temp.log
+pveum user add terraform@pve
+pveum aclmod / -user terraform@pve -role terraform-role
+pveum user token add terraform@pve terraform-token --privsep=0 | tee "${temp_log}"
+
+terraform_vars=terraform.tfvars
+echo "token_id = \"$(grep full-tokenid "${temp_log}" | sed -e "s/^.*full-tokenid\s*│\s*//" -e "s/\s.*//" | tr -d '\n')\"" >> "${terraform_vars}"
+echo "token_secret = \"$(grep value "${temp_log}" | sed -e "s/^.*value\s*│\s*//" -e "s/\s.*//" | tr -d '\n')\"" >> "${terraform_vars}"
+rm "${temp_log}"
