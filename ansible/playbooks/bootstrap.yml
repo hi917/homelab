@@ -28,3 +28,8 @@
 
     - role: setup_vimrc
       sv_user: '{{ name }}'
+
+  tasks:
+    - name: Reboot
+      tags: reboot
+      ansible.builtin.reboot:

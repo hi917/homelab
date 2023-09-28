@@ -26,7 +26,7 @@
     password: '{{ su_password | default(default_user_password) }}'
     state: present
     shell: /bin/bash
-    groups: '{{ su_group | default("") }}'
+    groups: '{{ su_groups | default("") }}'
     append: true
     home: '/home/{{ su_name | mandatory }}'
     create_home: true

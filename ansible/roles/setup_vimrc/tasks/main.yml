@@ -15,5 +15,13 @@
     failed_when: 1 == 0
     changed_when: false
     tags: vimplug
+    become_user: '{{ sv_user | mandatory }}'
     ansible.builtin.command:
-      cmd: "vim -E +PlugInstall +qa"
+      cmd: "vim -u {{ lookup('env', 'HOME') + '/.vimrc' }} -E -s  +\"PlugInstall --sync\" +qa"
+
+  - name: Ensure VIM plugins installed
+    register: plugged
+    failed_when: plugged.stat.isdir is not defined or not plugged.stat.isdir
+    tags: vimplug
+    ansible.builtin.stat:
+      path: "{{ lookup('env', 'HOME') + '/.vim/plugged' }}"
