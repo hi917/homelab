@@ -13,3 +13,8 @@ ansible_become_password: !vault |
   66616439633231383366373432316462343437306162303830383666333335663066633664623733
   6232343533343732630a623333396363313835646137613264633632623439396638346432636531
   3262
+
+ansible_vault_password: "{{ lookup('env', 'HOME') + '/homelab/ansible/ansible_vault_password' }}"
+HOME: "{{ lookup('env', 'HOME') }}"
+ANSIBLE_HOME: "{{ HOME + '/homelab/ansible'}}"
+ANSIBLE_SSH_KEY_FILE: "{{ HOME + '/.ssh/ansible.pub'}}"

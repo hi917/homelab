@@ -1,0 +1,18 @@
+ansible_user: root
+ansible_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  32613236326537653365323764393936656436613935663038373330366536613164623635333239
+  6662623933636331373832346261363161623631613238300a616234663437633466353739306461
+  34643262373165643530373937353735653633323831366562393932326635656161626163653430
+  3365666337616530650a333735643866383165613330343233666333613037613031343733336136
+  3832
+
+pve_short_name: ansible
+pve_full_name: '{{ pve_short_name }}@pve'
+pve_role_name: '{{ pve_short_name }}-role'
+pve_token_id: '{{ pve_short_name }}-token'
+pve_token_secret: '{{ vault_token_secret }}'
+temp_vault_file: /tmp/vault.yml
+pve_vault_file: "{{ ANSIBLE_HOME + '/roles/setup_pve/vars/vault.yml' }}"
+pve_dynamic_inventory_file: "{{ ANSIBLE_HOME + '/inventory/pve.proxmox.yml' }}"
+pve_dynamic_inventory_template: "{{ ANSIBLE_HOME + '/roles/setup_pve/templates/pve.proxmox.yml.j2' }}"

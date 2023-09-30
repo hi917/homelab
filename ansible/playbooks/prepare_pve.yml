@@ -1,8 +1,50 @@
 ---
-- name: Bootstrap PVE node
+- name: Bootstrap PVE datacenter
   hosts: all
+
+  vars_files:
+    - "{{ ANSIBLE_HOME + '/playbooks/vars/init_pve.yml' }}"
 
   roles:
     - apt
-
     - setup_pve
+
+  tasks:
+    - name: Check token secret file exists and encryption status
+      delegate_to: localhost
+      register: secret_exists
+      changed_when: false
+      failed_when: 0
+      tags: encrypt
+      ansible.builtin.command:
+        cmd: 'grep -G "^$ANSIBLE_VAULT"  {{ pve_vault_file }}'
+
+    - name: Encrypt local token secret file
+      delegate_to: localhost
+      when: secret_exists.rc != '0'
+      tags: encrypt
+      ansible.builtin.command:
+        argv:
+          - ansible-vault
+          - encrypt
+          - --vault-password-file
+          - "{{ ansible_vault_password }}"
+          - '{{ pve_vault_file }}'
+
+    - name: Load token secret
+      changed_when: false
+      ansible.builtin.include_vars:
+        file: '{{ pve_vault_file }}'
+
+    - name: Reload main var file
+      changed_when: false
+      ansible.builtin.include_vars:
+        file: "{{ ANSIBLE_HOME + '/playbooks/vars/init_pve.yml' }}"
+
+    - name: Template out dynamic inventory file
+      delegate_to: localhost
+      tags: template
+      ansible.builtin.template:
+        src: "{{ pve_dynamic_inventory_template }}"
+        dest: "{{ pve_dynamic_inventory_file }}"
+        mode: '0644'

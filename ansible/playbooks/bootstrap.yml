@@ -5,7 +5,7 @@
 
   vars:
     name: peter
-    public_key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/ansible.pub') }}"
+    public_key: "{{ ANSIBLE_SSH_KEY_FILE }}"
 
   roles:
     - role: apt

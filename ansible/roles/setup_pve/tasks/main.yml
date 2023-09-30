@@ -1,21 +1,67 @@
-- name: Setup terraform on PVE
-  tags: terraform
+- name: Setup ansible on PVE
+  tags: ansible
 
   block:
-  - name: Get script to create terraform user and role
-    ansible.builtin.get_url:
-      url: '{{ create_terraform_user_url }}'
-      dest: /root
-      owner: '{{ ansible_user }}'
-      mode: '0744'
-      force: true
-
-  - name: Create terraform user and role
+  - name: Create PVE role
     ansible.builtin.command:
-      cmd: "/bin/bash {{ '/root/' + script_name }}"
+      argv:
+        - pveum
+        - role
+        - add
+        - '{{ pve_role_name }}'
+        - --privs
+        - VM.Allocate VM.Clone VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Monitor VM.Audit VM.PowerMgmt Datastore.AllocateSpace Datastore.Audit
 
-  - name: Fetch terraform vars file
+  - name: Create PVE user
+    ansible.builtin.command:
+      argv:
+        - pveum
+        - user
+        - add
+        - '{{ pve_full_name }}'
+
+  - name: Update Access Control List
+    ansible.builtin.command:
+      argv:
+        - pveum
+        - aclmod
+        - /
+        - -user
+        - '{{ pve_full_name }}'
+        - -role
+        - '{{ pve_role_name }}'
+
+- name: Get API token
+  tags: ansible, api_token
+
+  block:
+  - name: Generate a new API token
+    register: api_token
+    ansible.builtin.command:
+      argv:
+        - pveum
+        - user
+        - token
+        - add
+        - '{{ pve_full_name }}'
+        - '{{ pve_short_name }}-token'
+        - --privsep=0
+        - --noborder
+        - --noheader
+
+  - name: Create temp token secret file
+    ansible.builtin.copy:
+      dest: '{{ temp_vault_file }}'
+      content: "vault_token_secret: {{ api_token.stdout | regex_search('(?<=value)\\s*[\\w\\d-]+') | regex_replace('\\s*') }}"
+      mode: '0644'
+
+  - name: Fetch token secret file
     ansible.builtin.fetch:
-      src: '{{ remote_terraform_vars }}'
-      dest: "{{ local_terraform_vars }}"
+      src: '{{ temp_vault_file }}'
+      dest: "{{ pve_vault_file }}"
       flat: true
+
+  - name: Remove temp token secret file
+    ansible.builtin.file:
+      path: '{{ temp_vault_file }}'
+      state: absent

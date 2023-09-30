@@ -1,0 +1,12 @@
+# Required
+plugin: community.general.proxmox
+
+# Connection parameters
+url: 'https://{{ ansible_host }}:8006'
+user: '{{ pve_full_name }}'
+token_id: '{{ pve_token_id }}'
+token_secret: '{{ pve_token_secret }}'
+validate_certs: false
+
+# Set ansible_host for proxmox nodes
+want_proxmox_nodes_ansible_host: true

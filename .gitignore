@@ -1,6 +1,5 @@
 # ANSIBLE
+**/*proxmox.yml
+**/vault.yml
 **/ansible_vault_password
 **/test*
-
-# TERRAFORM
-**/terraform.tfvars
